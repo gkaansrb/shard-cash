@@ -1,0 +1,23 @@
+GET http://localhost:8080/hello/1
+Content-Type: application/json
+
+####
+
+POST http://localhost:8080/hello
+Content-Type: application/json
+
+{
+  "message" : "PostTest"
+}
+
+####
+####
+
+PUT http://localhost:8080/hello/1
+Content-Type: application/json
+
+{
+  "message" : "PutTest"
+}
+
+####
