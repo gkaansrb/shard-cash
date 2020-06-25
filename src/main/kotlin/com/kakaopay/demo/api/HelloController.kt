@@ -1,7 +1,6 @@
 package com.kakaopay.demo.api
 
 import com.kakaopay.demo.domain.HelloService
-import com.sun.org.apache.xml.internal.security.utils.HelperNodeList
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import kotlin.random.Random
 
 @RestController
 @RequestMapping("/hello")
@@ -22,7 +20,10 @@ class HelloController(private val helloService: HelloService) {
     }
 
     @PutMapping("/{id}")
-    fun update(@PathVariable("id") id: Long, @RequestBody(required = true) message: String): String {
+    fun update(
+        @PathVariable("id") id: Long,
+        @RequestBody(required = true) message: String
+    ): String {
         return helloService.update(id, message)?.toString() ?: "업뎃 실패"
     }
 
