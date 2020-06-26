@@ -4,9 +4,9 @@ import com.kakaopay.demo.api.share.CashShareOrderDto
 import com.kakaopay.demo.domain.cash.share.store.CashShareOrder
 import com.kakaopay.demo.domain.cash.share.store.CashShareOrderQueryDslRepository
 import com.kakaopay.demo.domain.cash.share.store.CashShareOrderRepository
-import kotlin.random.Random
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import kotlin.random.Random
 
 @Service
 class CashShareService(
@@ -38,7 +38,8 @@ class CashShareService(
         sharedPerson = sharePerson,
         cash = shareAmount,
         owner = userId
-    ).apply { shared() }
+    )
+        .apply { shared() }
         .let { cashShareOrderRepository.save(it) }.token
 
     @Transactional(readOnly = false)
