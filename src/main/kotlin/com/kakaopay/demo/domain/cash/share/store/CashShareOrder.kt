@@ -11,6 +11,7 @@ import javax.persistence.GenerationType
 import javax.persistence.Id
 import javax.persistence.OneToMany
 import javax.persistence.Table
+import kotlin.math.floor
 
 @Entity
 @Table(name = "cash_share_order")
@@ -20,7 +21,7 @@ data class CashShareOrder(
     @Column(name = "roomId")
     val roomId: String,
     @Column(name = "owner")
-    val owner: String,
+    val owner: Long,
     @Column(name = "cash")
     val cash: Long,
     @Column(name = "shared_person")
@@ -30,9 +31,7 @@ data class CashShareOrder(
     @Column(name = "look_up_dead_line")
     val lookUpDeadLine: LocalDateTime,
     @Column(name = "shared_amount")
-    var sharedAmount: Long = 0,
-    @OneToMany(mappedBy = "cashShareOrder", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-    val cashShareds: List<CashShared>
+    var sharedAmount: Long = 0
 ) : AuditingEntity() {
     @Id
     @Column(name = "id")
@@ -43,24 +42,41 @@ data class CashShareOrder(
     @OneToMany(mappedBy = "cashShareOrder", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     val cashSharedUsers: MutableList<CashSharedUser> = mutableListOf()
 
-    fun receipt(userId: String): Long {
-        valid(userId)
+    @OneToMany(mappedBy = "cashShareOrder", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    val cashShareds: MutableList<CashShared> = mutableListOf()
 
+    fun receipt(userId: Long): Long {
+        valid(userId)
         return cashShareds.first { it.status == CashShared.Status.READY }
-            .apply { shared() }
-            .let { CashSharedUser(userId, it.id!!, it.sharedAmount, this) }
+            .apply { this.shared() }
+            .let { CashSharedUser(userId = userId, cash = it.sharedAmount, cashSharedId = it.id!!, cashShareOrder = this) }
             .apply { cashSharedUsers.add(this) }
+            .apply { sharedAmount += this.cash }
             .cash
     }
 
-    private fun valid(userId: String) {
+    private fun valid(userId: Long) {
         check(cash > sharedAmount) { "더 이상 남은 잔액이 없습니다." }
         check(owner != userId) { "획득 대상자가 아닙니다." }
         check(cashSharedUsers.none { it.userId == userId }) { "이미 처리된 유저입니다." }
     }
 
+    fun shared() {
+        val baseShare = floor(cash / sharedPerson.toDouble()).toLong()
+        (1.. sharedPerson).fold(cash - (baseShare * sharedPerson)) {
+            remainAmount, it ->
+            if (remainAmount > 0) {
+                cashShareds.add(CashShared(baseShare + 1, this))
+                remainAmount - 1
+            } else {
+                cashShareds.add(CashShared(baseShare, this))
+                0
+            }
+        }
+     }
+
     companion object {
-        fun of(token: String, roomId: String, owner: String, cash: Long, sharedPerson: Long): CashShareOrder {
+        fun of(token: String, roomId: String, owner: Long, cash: Long, sharedPerson: Long): CashShareOrder {
             val now = LocalDateTime.now()
             return CashShareOrder(
                 token = token,
@@ -69,8 +85,7 @@ data class CashShareOrder(
                 cash = cash,
                 sharedPerson = sharedPerson,
                 sharedDeadLine = now.plusMinutes(10),
-                lookUpDeadLine = now.plusDays(7),
-                cashShareds = listOf()
+                lookUpDeadLine = now.plusDays(7)
             )
         }
     }

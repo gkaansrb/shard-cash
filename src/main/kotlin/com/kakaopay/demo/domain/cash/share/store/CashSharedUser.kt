@@ -15,7 +15,7 @@ import javax.persistence.Table
 @Table(name = "cash_shared_user")
 data class CashSharedUser(
     @Column(name = "user_id")
-    val userId: String,
+    val userId: Long,
     @Column(name = "cash")
     val cash: Long,
     @Column(name = "cash_shared_id")

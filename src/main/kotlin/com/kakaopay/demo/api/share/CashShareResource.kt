@@ -25,7 +25,7 @@ data class CashShareOrderDto(
     }
 }
 
-data class CashSharedUserDto(val userId: String, val cash: Long) {
+data class CashSharedUserDto(val userId: Long, val cash: Long) {
     companion object {
         fun of(cashSharedUser: CashSharedUser) =
             CashSharedUserDto(userId = cashSharedUser.userId, cash = cashSharedUser.cash)

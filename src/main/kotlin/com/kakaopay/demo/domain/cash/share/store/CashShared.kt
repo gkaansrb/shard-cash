@@ -21,7 +21,7 @@ data class CashShared(
     val cashShareOrder: CashShareOrder
 ) : AuditingEntity() {
     fun shared() {
-        status == Status.SHARED
+        status = Status.SHARED
     }
 
     @Id
