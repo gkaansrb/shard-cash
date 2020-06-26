@@ -1,0 +1,21 @@
+spring:
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate.format_sql: true
+      hibernate.use_sql_comments: true
+      hibernate.default_batch_fetch_size: 50
+
+  datasource:
+    url: jdbc:h2:mem:kakao;DB_CLOSE_ON_EXIT=FALSE;AUTOCOMMIT=OFF;TRACE_LEVEL_FILE=2
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    platform: h2
+
+  h2:
+    console:
+      enabled: true
