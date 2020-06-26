@@ -14,8 +14,10 @@ buildscript {
 }
 
 plugins {
-    id("org.springframework.boot") version "2.3.1.RELEASE"
+    id("org.springframework.boot") version "2.2.2.RELEASE"
     id("io.spring.dependency-management") version "1.0.9.RELEASE"
+    id("org.jlleitschuh.gradle.ktlint") version "9.1.1"
+    id("org.jlleitschuh.gradle.ktlint-idea") version "9.1.1"
     kotlin("jvm") version "1.3.72"
     kotlin("plugin.spring") version "1.3.72"
     kotlin("plugin.jpa") version "1.3.72"
@@ -43,11 +45,13 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
-    // kapt로 dependency를 지정해 준다.
-    // kotlin 코드가 아니라면 kapt 대신 annotationProcessor를 사용한다.
-    kapt("com.querydsl:querydsl-apt:4.2.2:jpa") // ":jpa 꼭 붙여줘야 한다!!"
+
+    kapt("com.querydsl:querydsl-apt:4.2.2:jpa")
     kapt("org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.2.Final")
 }
+
+apply(plugin = "org.jlleitschuh.gradle.ktlint")
+apply(plugin = "org.jlleitschuh.gradle.ktlint-idea")
 
 tasks.withType<Test> {
     useJUnitPlatform()

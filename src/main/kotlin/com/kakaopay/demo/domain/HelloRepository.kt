@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface HelloRepository : JpaRepository<Hello, Long>, QuerydslPredicateExecutor<Hello> {
     companion object {
-        private val qHello = QHello.hello
+        // private val qHello = QHello.hello
     }
 }
