@@ -4,6 +4,7 @@ import com.kakaopay.demo.domain.cash.share.store.CashShareOrder
 import com.kakaopay.demo.domain.cash.share.store.CashShareOrderQueryDslRepository
 import com.kakaopay.demo.domain.cash.share.store.CashShareOrderRepository
 import com.kakaopay.demo.util.invokeData
+import com.kakaopay.demo.util.withLocalDateTime
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.runner.RunWith
@@ -120,14 +121,15 @@ internal class CashShareServiceTest {
         val roomId = "roomID"
         val owner = 111L
         val shareUserId = 1234L
-        val cashShareOrder = CashShareOrder.of(token, roomId, owner, 100, sharedPerson = 2)
-        invokeData(cashShareOrder, "sharedDeadLine", LocalDateTime.now().minusMinutes(20))
-        cashShareOrder.cashShareds.forEach {
-            invokeData(it, "id", Random.nextLong())
-        }
 
-        Mockito.`when`(queryRepository.findByReceiptTarget(roomId, token))
-            .thenReturn(cashShareOrder)
+        withLocalDateTime(LocalDateTime.now().minusHours(1)) {
+            val cashShareOrder = CashShareOrder.of(token, roomId, owner, 100, sharedPerson = 2)
+            cashShareOrder.cashShareds.forEach {
+                invokeData(it, "id", Random.nextLong())
+            }
+            Mockito.`when`(queryRepository.findByReceiptTarget(roomId, token))
+                .thenReturn(cashShareOrder)
+        }
 
         assertThrows<Exception> { cashShareService.receipt(shareUserId, roomId, token) }
             .apply {
@@ -149,11 +151,11 @@ internal class CashShareServiceTest {
             .thenReturn(cashShareOrder)
 
         assertThrows<Exception> { cashShareService.receipt(owner, roomId, token) }
-            .apply { assert(message == "획득 대상자가 아닙니다") }
+            .apply { assert(message == "획득 대상자가 아닙니다.") }
     }
 
     @Test
-    fun `뿌리기가 얼마나 진행되었는지 볼 수 있다`() {
+    fun `뿌리기 Owner 는 뿌리기가 얼마나 진행 되었는지 볼 수 있다`() {
         val token = "toc"
         val roomId = "roomID"
         val owner = 111L
@@ -164,8 +166,8 @@ internal class CashShareServiceTest {
         Mockito.`when`(queryRepository.findOne(owner, roomId, token)).thenReturn(cashShareOrder)
         cashShareService.receipt(shareUserId, roomId, token).apply { assert(this == 50L) }
 
-        cashShareService.find(shareUserId, roomId, token)
-            ?.apply {
+        cashShareService.find(owner, roomId, token)
+            .apply {
                 assert(cash == 100L)
                 assert(sharedAt == cashShareOrder.createdAt)
                 assert(sharedAmount == 50L)
@@ -174,6 +176,22 @@ internal class CashShareServiceTest {
                     assert(userId == shareUserId)
                     assert(cash == 50L)
                 }
-            } ?: throw Exception("error")
+            }
+    }
+
+    @Test
+    fun `뿌리기 Owner 가 아니면 뿌리기 정보를 볼 수 없다`() {
+        val token = "toc"
+        val roomId = "roomID"
+        val owner = 111L
+        val shareUserId = 1234L
+        val cashShareOrder = CashShareOrder.of(token, roomId, owner, 100, sharedPerson = 2)
+        cashShareOrder.cashShareds.forEach { invokeData(it, "id", Random.nextLong()) }
+        Mockito.`when`(queryRepository.findByReceiptTarget(roomId, token)).thenReturn(cashShareOrder)
+        Mockito.`when`(queryRepository.findOne(owner, roomId, token)).thenReturn(cashShareOrder)
+        cashShareService.receipt(shareUserId, roomId, token).apply { assert(this == 50L) }
+
+        assertThrows<Exception> { cashShareService.find(shareUserId, roomId, token) }
+            .apply { assert(message == "뿌리기 정보를 찾을 수 없습니다.") }
     }
 }

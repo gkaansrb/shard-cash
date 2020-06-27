@@ -47,4 +47,5 @@ class CashShareService(
 
     fun find(owner: Long, roomId: String, token: String) =
         cashShareOrderQueryDslRepository.findOne(owner, roomId, token)?.let { CashShareOrderDto.of(it) }
+            ?: throw Exception("뿌리기 정보를 찾을 수 없습니다.")
 }
