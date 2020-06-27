@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository
 class CashShareOrderQueryDslRepository : QuerydslRepositorySupport(QCashShareOrder::class.java) {
 
     companion object {
-        val qCashShareOrder = QCashShareOrder.cashShareOrder
+        val qCashShareOrder: QCashShareOrder = QCashShareOrder.cashShareOrder
     }
 
-    fun existsByValidToken(roomId: String, token: String): Boolean =
+    fun exists(roomId: String, token: String): Boolean =
         from(qCashShareOrder)
             .where(
                 qCashShareOrder.token.eq(token)
@@ -21,7 +21,7 @@ class CashShareOrderQueryDslRepository : QuerydslRepositorySupport(QCashShareOrd
             .orderBy(qCashShareOrder.sharedDeadLine.desc())
             .fetchFirst() != null
 
-    fun findByReceiptTarget(roomId: String, token: String): CashShareOrder? =
+    fun findSharableOrder(roomId: String, token: String): CashShareOrder? =
         from(qCashShareOrder)
             .where(
                 qCashShareOrder.token.eq(token)

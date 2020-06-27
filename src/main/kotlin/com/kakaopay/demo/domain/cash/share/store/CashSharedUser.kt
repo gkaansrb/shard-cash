@@ -7,6 +7,7 @@ import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
+import javax.persistence.Index
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 import javax.persistence.Table
@@ -14,13 +15,13 @@ import javax.persistence.Table
 @Entity
 @Table(
     name = "cash_shared_user",
-    indexes = [javax.persistence.Index(name = "cash_shared_user_idx01", columnList = "cash_share_order_id")]
+    indexes = [Index(name = "cash_shared_user_idx01", columnList = "cash_share_order_id")]
 )
 data class CashSharedUser(
     @Column(name = "user_id")
     val userId: Long,
     @Column(name = "cash")
-    val cash: Long,
+    val sharedAmount: Long,
     @Column(name = "cash_shared_id")
     val cashSharedId: Long,
     @ManyToOne(fetch = FetchType.LAZY)

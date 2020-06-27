@@ -18,7 +18,7 @@ internal class CashShareTokenGenerateComponentTest {
 
     @Test
     fun `숫자가 있으면 token 이 중복된다고 판단하고 문자열로만 구성된 token 을 만들어 낸다(중복 토큰 방지 테스트)`() {
-        Mockito.`when`(queryRepository.existsByValidToken(any(), any())).thenAnswer {
+        Mockito.`when`(queryRepository.exists(any(), any())).thenAnswer {
             val arguments = it.arguments
             val token = (arguments[1] as String)
             duplicateTest.containsMatchIn(token)

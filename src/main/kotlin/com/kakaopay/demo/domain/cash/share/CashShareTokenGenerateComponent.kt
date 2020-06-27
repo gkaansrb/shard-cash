@@ -19,7 +19,7 @@ class CashShareTokenGenerateComponent(private var cashShareOrderQueryDslReposito
         var token: String
         do {
             token = generateToken()
-        } while (cashShareOrderQueryDslRepository.existsByValidToken(roomId = roomId, token = token))
+        } while (cashShareOrderQueryDslRepository.exists(roomId = roomId, token = token))
         return token
     }
 }
