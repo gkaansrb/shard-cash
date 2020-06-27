@@ -2,7 +2,6 @@ package com.kakaopay.demo.api.share
 
 import com.kakaopay.demo.domain.cash.share.CashShareService
 import com.kakaopay.demo.domain.cash.share.CashShareTokenGenerateComponent
-import javax.validation.Valid
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -23,7 +22,7 @@ class CashShareController(
     fun create(
         @RequestHeader("X-USER-ID") userId: Long,
         @RequestHeader("X-ROOM-ID") roomId: String,
-        @Valid @RequestBody(required = true) cashShareRequest: CashShareRequest
+        @RequestBody(required = true) cashShareRequest: CashShareRequest
     ) = cashShareService.create(
         token = cashShareTokenGenerateComponent.create(roomId),
         userId = userId,

@@ -219,7 +219,7 @@ internal class CashShareServiceTest {
                 assert(sharedUsers.size == 1)
                 sharedUsers.first().apply {
                     assert(userId == shareUserId)
-                    assert(cash == 50L)
+                    assert(sharedAmount == 50L)
                 }
             }
     }
