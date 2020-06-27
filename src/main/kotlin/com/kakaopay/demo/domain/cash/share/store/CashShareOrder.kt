@@ -28,8 +28,8 @@ data class CashShareOrder(
     val roomId: String,
     @Column(name = "owner")
     val owner: Long,
-    @Column(name = "cash")
-    val cash: Long,
+    @Column(name = "share_request_amount")
+    val shareRequestAmount: Long,
     @Column(name = "shared_person")
     val sharedPerson: Long,
     @Column(name = "shared_dead_line")
@@ -55,35 +55,33 @@ data class CashShareOrder(
     @OneToMany(mappedBy = "cashShareOrder", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     val cashShareds: MutableList<CashShared> = mutableListOf()
 
-    fun receipt(userId: Long): Long {
-        receiptValid(userId)
+    fun receiptShare(userId: Long): Long {
+        shareValid(userId)
         return cashShareds.first { it.status == CashShared.Status.READY }
             .apply { this.shared() }
             .let {
                 CashSharedUser(
                     userId = userId,
-                    cash = it.sharedAmount,
+                    sharedAmount = it.sharedAmount,
                     cashSharedId = it.id!!,
                     cashShareOrder = this
                 )
             }
             .apply { cashSharedUsers.add(this) }
-            .apply { sharedAmount += this.cash }
-            .cash
+            .sharedAmount
+            .apply { sharedAmount += this }
     }
 
-    private fun receiptValid(userId: Long) {
-        check(cash > sharedAmount) { ErrorCode.SHARED_COMPLETED.description }
+    private fun shareValid(userId: Long) {
+        check(shareRequestAmount > sharedAmount) { ErrorCode.SHARED_COMPLETED.description }
         check(owner != userId) { ErrorCode.SHARED_TARGET.description }
-        check(
-            sharedDeadLine.isBefore(LocalDateTime.now()).not()
-        ) { ErrorCode.SHARED_TIME_OUT.description }
+        check(sharedDeadLine.isBefore(LocalDateTime.now()).not()) { ErrorCode.SHARED_TIME_OUT.description }
         check(cashSharedUsers.none { it.userId == userId }) { ErrorCode.SHARED_USER.description }
     }
 
     fun shared() {
-        val baseShare = floor(cash / sharedPerson.toDouble()).toLong()
-        (1..sharedPerson).fold(cash - (baseShare * sharedPerson)) { remainAmount, it ->
+        val baseShare = floor(shareRequestAmount / sharedPerson.toDouble()).toLong()
+        (1..sharedPerson).fold(shareRequestAmount - (baseShare * sharedPerson)) { remainAmount, seq ->
             if (remainAmount > 0) {
                 cashShareds.add(CashShared(baseShare + 1, this))
                 remainAmount - 1
@@ -95,12 +93,12 @@ data class CashShareOrder(
     }
 
     private fun valid() {
-        check(cash > 0) { ErrorCode.SHARE_AMOUNT_EMPTY.description }
+        check(shareRequestAmount > 0) { ErrorCode.SHARE_AMOUNT_EMPTY.description }
         check(sharedPerson > 0) { ErrorCode.SHARE_PERSON_EMPTY.description }
     }
 
     private fun sharedValid() {
-        check(cash == cashShareds.map { it.sharedAmount }.sum()) {
+        check(shareRequestAmount == cashShareds.map { it.sharedAmount }.sum()) {
             "${ErrorCode.SHARE_FAILED.description} - $cashShareds"
         }
     }
@@ -110,7 +108,7 @@ data class CashShareOrder(
             token: String,
             roomId: String,
             owner: Long,
-            cash: Long,
+            shareRequestAmount: Long,
             sharedPerson: Long
         ): CashShareOrder {
             val now = LocalDateTime.now()
@@ -118,7 +116,7 @@ data class CashShareOrder(
                 token = token,
                 roomId = roomId,
                 owner = owner,
-                cash = cash,
+                shareRequestAmount = shareRequestAmount,
                 sharedPerson = sharedPerson,
                 sharedDeadLine = now.plusMinutes(10),
                 lookUpDeadLine = now.plusDays(7)

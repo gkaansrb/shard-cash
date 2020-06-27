@@ -21,7 +21,7 @@ data class CashSharedUser(
     @Column(name = "user_id")
     val userId: Long,
     @Column(name = "cash")
-    val cash: Long,
+    val sharedAmount: Long,
     @Column(name = "cash_shared_id")
     val cashSharedId: Long,
     @ManyToOne(fetch = FetchType.LAZY)

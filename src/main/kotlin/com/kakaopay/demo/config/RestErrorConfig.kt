@@ -49,7 +49,7 @@ class RestErrorConfig {
     @ExceptionHandler(value = [IllegalStateException::class])
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    fun handleDataNotFoundException(
+    fun handleIllegalStateException(
         e: IllegalStateException,
         request: HttpServletRequest,
         webRequest: WebRequest

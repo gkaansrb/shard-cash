@@ -37,7 +37,7 @@ class CashShareController(
         @RequestHeader("X-USER-ID") userId: Long,
         @RequestHeader("X-ROOM-ID") roomId: String,
         @PathVariable("token") token: String
-    ) = cashShareService.receipt(userId = userId, roomId = roomId, token = token)
+    ) = cashShareService.share(userId = userId, roomId = roomId, token = token)
 
     @GetMapping("/{token}")
     fun find(

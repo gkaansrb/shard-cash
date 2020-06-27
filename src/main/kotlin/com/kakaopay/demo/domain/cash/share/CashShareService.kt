@@ -19,13 +19,13 @@ class CashShareService(
         token = token,
         roomId = roomId,
         sharedPerson = sharePerson,
-        cash = shareAmount,
+        shareRequestAmount = shareAmount,
         owner = userId
     ).let { cashShareOrderRepository.save(it) }.token
 
     @Transactional(readOnly = false)
-    fun receipt(userId: Long, roomId: String, token: String) =
-        cashShareOrderQueryDslRepository.findByReceiptTarget(roomId, token)?.receipt(userId)
+    fun share(userId: Long, roomId: String, token: String) =
+        cashShareOrderQueryDslRepository.findSharableOrder(roomId, token)?.receiptShare(userId)
             ?: throw DataNotFoundException(ErrorCode.DATA_NOT_FOUND.description)
 
     fun find(owner: Long, roomId: String, token: String) =

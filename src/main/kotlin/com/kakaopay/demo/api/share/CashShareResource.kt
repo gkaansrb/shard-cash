@@ -13,14 +13,14 @@ data class CashShareRequest(
 )
 
 data class CashShareOrderDto(
-    val cash: Long,
+    val shareRequestAmount: Long,
     val sharedAt: LocalDateTime,
     val sharedAmount: Long,
     val sharedUsers: List<CashSharedUserDto>
 ) {
     companion object {
         fun of(order: CashShareOrder) = CashShareOrderDto(
-            cash = order.cash,
+            shareRequestAmount = order.shareRequestAmount,
             sharedAt = order.createdAt,
             sharedAmount = order.sharedAmount,
             sharedUsers = order.cashSharedUsers.map { CashSharedUserDto.of(it) }
@@ -31,6 +31,6 @@ data class CashShareOrderDto(
 data class CashSharedUserDto(val userId: Long, val cash: Long) {
     companion object {
         fun of(cashSharedUser: CashSharedUser) =
-            CashSharedUserDto(userId = cashSharedUser.userId, cash = cashSharedUser.cash)
+            CashSharedUserDto(userId = cashSharedUser.userId, cash = cashSharedUser.sharedAmount)
     }
 }
