@@ -61,6 +61,46 @@ internal class CashShareServiceTest {
     }
 
     @Test
+    fun `1원 미만 뿌리기는 불가능하다`() {
+        var cashShareOrder: CashShareOrder?
+        val shareAmount: Long = 0
+        val sharePerson: Long = 5
+        val roomId: String = "roomId"
+        val owner: Long = 1111
+        Mockito.`when`(repository.save(Mockito.any(CashShareOrder::class.java))).thenAnswer {
+            cashShareOrder = it.arguments[0] as CashShareOrder
+            cashShareOrder
+        }
+        assertThrows<IllegalStateException> { cashShareService.create(
+            token = testToken,
+            userId = owner,
+            roomId = roomId,
+            shareAmount = shareAmount,
+            sharePerson = sharePerson
+        ) }.apply { assert(message == ErrorCode.SHARE_AMOUNT_EMPTY.description) }
+    }
+
+    @Test
+    fun `1명 이하에게 뿌리기는 불가능하다`() {
+        var cashShareOrder: CashShareOrder?
+        val shareAmount: Long = 10
+        val sharePerson: Long = 0
+        val roomId: String = "roomId"
+        val owner: Long = 1111
+        Mockito.`when`(repository.save(Mockito.any(CashShareOrder::class.java))).thenAnswer {
+            cashShareOrder = it.arguments[0] as CashShareOrder
+            cashShareOrder
+        }
+        assertThrows<IllegalStateException> { cashShareService.create(
+            token = testToken,
+            userId = owner,
+            roomId = roomId,
+            shareAmount = shareAmount,
+            sharePerson = sharePerson
+        ) }.apply { assert(message == ErrorCode.SHARE_PERSON_EMPTY.description) }
+    }
+
+    @Test
     fun `100원을 1명에게 뿌리면 100원을 받을 수 있다`() {
         val roomId = "roomID"
         val shareUserId = 1234L
@@ -199,4 +239,5 @@ internal class CashShareServiceTest {
         assertThrows<DataNotFoundException> { cashShareService.find(shareUserId, roomId, token) }
             .apply { assert(message == ErrorCode.DATA_NOT_FOUND.description) }
     }
+
 }
