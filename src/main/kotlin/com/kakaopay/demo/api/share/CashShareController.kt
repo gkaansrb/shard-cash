@@ -38,6 +38,6 @@ class CashShareController(private val cashShareService: CashShareService) {
         @RequestHeader("X-ROOM-ID") roomId: String,
         @PathVariable("token") token: String
     ): CashShareOrderDto {
-        return cashShareService.find(userId, roomId, token)!!
+        return cashShareService.find(userId, roomId, token)
     }
 }

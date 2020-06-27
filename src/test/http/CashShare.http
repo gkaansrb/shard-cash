@@ -9,16 +9,16 @@ X-ROOM-ID: ROOM_1234
   "sharePerson" : 2
 }
 ### 뿌리기 결과 조회
-GET http://localhost:8080/cash/share/BCD
+GET http://localhost:8080/cash/share/48Y
 Content-Type: application/json
 X-USER-ID: 1234
 X-ROOM-ID: ROOM_1234
 ####
 
 #### 캐시 획득
-PUT http://localhost:8080/cash/share/BCD
+PUT http://localhost:8080/cash/share/48Y
 Content-Type: application/json
-X-USER-ID: 1234222
-X-ROOM-ID: ROOM_12343
+X-USER-ID: 12343
+X-ROOM-ID: ROOM_1234
 
 ####
