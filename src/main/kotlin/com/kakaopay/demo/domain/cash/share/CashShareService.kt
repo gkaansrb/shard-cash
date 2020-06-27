@@ -38,9 +38,7 @@ class CashShareService(
         sharedPerson = sharePerson,
         cash = shareAmount,
         owner = userId
-    )
-        .apply { shared() }
-        .let { cashShareOrderRepository.save(it) }.token
+    ).let { cashShareOrderRepository.save(it) }.token
 
     @Transactional(readOnly = false)
     fun receipt(userId: Long, roomId: String, token: String) =

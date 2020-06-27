@@ -9,13 +9,16 @@ import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
+import javax.persistence.Index
 import javax.persistence.OneToMany
 import javax.persistence.Table
 import javax.persistence.Version
 import kotlin.math.floor
 
 @Entity
-@Table(name = "cash_share_order")
+@Table(name = "cash_share_order",
+    indexes = [Index(name = "cash_share_order_idx01", columnList = "roomId, token")]
+)
 data class CashShareOrder(
     @Column(name = "token")
     val token: String,
@@ -91,7 +94,7 @@ data class CashShareOrder(
                 sharedPerson = sharedPerson,
                 sharedDeadLine = now.plusMinutes(10),
                 lookUpDeadLine = now.plusDays(7)
-            )
+            ).apply { shared() }
         }
     }
 }

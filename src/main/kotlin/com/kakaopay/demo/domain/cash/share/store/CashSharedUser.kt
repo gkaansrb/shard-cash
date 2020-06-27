@@ -12,7 +12,10 @@ import javax.persistence.ManyToOne
 import javax.persistence.Table
 
 @Entity
-@Table(name = "cash_shared_user")
+@Table(
+    name = "cash_shared_user",
+    indexes = [javax.persistence.Index(name = "cash_shared_user_idx01", columnList = "cash_share_order_id")]
+)
 data class CashSharedUser(
     @Column(name = "user_id")
     val userId: Long,
