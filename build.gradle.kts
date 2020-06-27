@@ -49,10 +49,10 @@ dependencies {
         exclude("org.junit.vintage:junit-vintage-engine")
         exclude("org.junit.jupiter:junit-jupiter")
     }
-    dependency("io.mockk:mockk:1.9.3")
-    dependency("org.junit.jupiter:junit-jupiter:5.6.0")
-    dependency("org.junit.jupiter:junit-jupiter-migrationsupport:5.6.0")
-    dependency("com.google.truth:truth:0.44")
+    testImplementation("io.mockk:mockk:1.9.3")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-migrationsupport:5.6.0")
+    testImplementation("com.google.truth:truth:0.44")
     kapt("com.querydsl:querydsl-apt:4.2.2:jpa")
     kapt("org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.2.Final")
 }

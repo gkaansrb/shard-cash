@@ -11,6 +11,7 @@ import javax.persistence.GenerationType
 import javax.persistence.Id
 import javax.persistence.OneToMany
 import javax.persistence.Table
+import javax.persistence.Version
 import kotlin.math.floor
 
 @Entity
@@ -38,6 +39,10 @@ data class CashShareOrder(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
         private set
+
+    @Version
+    @Column(name = "version")
+    var version: Long = 0
 
     @OneToMany(mappedBy = "cashShareOrder", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     val cashSharedUsers: MutableList<CashSharedUser> = mutableListOf()

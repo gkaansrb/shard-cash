@@ -3,6 +3,8 @@ package com.kakaopay.demo.domain.cash.share.store
 import com.kakaopay.demo.domain.common.AuditingEntity
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
 import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
@@ -30,6 +32,7 @@ data class CashShared(
     var id: Long? = null
         private set
 
+    @Enumerated(value = EnumType.STRING)
     @Column(name = "status")
     var status: Status = Status.READY
 
