@@ -3,6 +3,8 @@ package com.kakaopay.demo.domain.cash.share
 import com.kakaopay.demo.domain.cash.share.store.CashShareOrder
 import com.kakaopay.demo.domain.cash.share.store.CashShareOrderQueryDslRepository
 import com.kakaopay.demo.domain.cash.share.store.CashShareOrderRepository
+import com.kakaopay.demo.domain.common.DataNotFoundException
+import com.kakaopay.demo.domain.common.ErrorCode
 import com.kakaopay.demo.util.invokeData
 import com.kakaopay.demo.util.withLocalDateTime
 import org.junit.jupiter.api.Test
@@ -92,8 +94,8 @@ internal class CashShareServiceTest {
 
         cashShareService.receipt(shareUserId, roomId, token).apply { assert(this == 50L) }
 
-        assertThrows<Exception> { cashShareService.receipt(shareUserId, roomId, token) }
-            .apply { assert(message == "이미 처리된 유저입니다.") }
+        assertThrows<IllegalStateException> { cashShareService.receipt(shareUserId, roomId, token) }
+            .apply { assert(message == ErrorCode.SHARED_USER.description) }
     }
 
     @Test
@@ -131,9 +133,9 @@ internal class CashShareServiceTest {
                 .thenReturn(cashShareOrder)
         }
 
-        assertThrows<Exception> { cashShareService.receipt(shareUserId, roomId, token) }
+        assertThrows<IllegalStateException> { cashShareService.receipt(shareUserId, roomId, token) }
             .apply {
-                assert(message == "획득 시간이 초과하였습니다.")
+                assert(message == ErrorCode.SHARED_TIME_OUT.description)
             }
     }
 
@@ -150,8 +152,8 @@ internal class CashShareServiceTest {
         Mockito.`when`(queryRepository.findByReceiptTarget(roomId, token))
             .thenReturn(cashShareOrder)
 
-        assertThrows<Exception> { cashShareService.receipt(owner, roomId, token) }
-            .apply { assert(message == "획득 대상자가 아닙니다.") }
+        assertThrows<IllegalStateException> { cashShareService.receipt(owner, roomId, token) }
+            .apply { assert(message == ErrorCode.SHARED_TARGET.description) }
     }
 
     @Test
@@ -191,7 +193,7 @@ internal class CashShareServiceTest {
         Mockito.`when`(queryRepository.findOne(owner, roomId, token)).thenReturn(cashShareOrder)
         cashShareService.receipt(shareUserId, roomId, token).apply { assert(this == 50L) }
 
-        assertThrows<Exception> { cashShareService.find(shareUserId, roomId, token) }
-            .apply { assert(message == "뿌리기 정보를 찾을 수 없습니다.") }
+        assertThrows<DataNotFoundException> { cashShareService.find(shareUserId, roomId, token) }
+            .apply { assert(message == ErrorCode.DATA_NOT_FOUND.description) }
     }
 }

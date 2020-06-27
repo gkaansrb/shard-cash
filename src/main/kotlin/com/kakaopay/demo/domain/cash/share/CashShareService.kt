@@ -4,8 +4,11 @@ import com.kakaopay.demo.api.share.CashShareOrderDto
 import com.kakaopay.demo.domain.cash.share.store.CashShareOrder
 import com.kakaopay.demo.domain.cash.share.store.CashShareOrderQueryDslRepository
 import com.kakaopay.demo.domain.cash.share.store.CashShareOrderRepository
+import com.kakaopay.demo.domain.common.DataNotFoundException
+import com.kakaopay.demo.domain.common.ErrorCode
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.zip.DataFormatException
 import kotlin.random.Random
 
 @Service
@@ -43,9 +46,9 @@ class CashShareService(
     @Transactional(readOnly = false)
     fun receipt(userId: Long, roomId: String, token: String) =
         cashShareOrderQueryDslRepository.findByReceiptTarget(roomId, token)?.receipt(userId)
-            ?: throw Exception("뿌리기 정보를 찾을 수 없습니다.")
+            ?: throw DataNotFoundException(ErrorCode.DATA_NOT_FOUND.description)
 
     fun find(owner: Long, roomId: String, token: String) =
         cashShareOrderQueryDslRepository.findOne(owner, roomId, token)?.let { CashShareOrderDto.of(it) }
-            ?: throw Exception("뿌리기 정보를 찾을 수 없습니다.")
+            ?: throw DataNotFoundException(ErrorCode.DATA_NOT_FOUND.description)
 }

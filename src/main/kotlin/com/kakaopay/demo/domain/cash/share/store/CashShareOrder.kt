@@ -1,6 +1,7 @@
 package com.kakaopay.demo.domain.cash.share.store
 
 import com.kakaopay.demo.domain.common.AuditingEntity
+import com.kakaopay.demo.domain.common.ErrorCode
 import java.time.LocalDateTime
 import javax.persistence.CascadeType
 import javax.persistence.Column
@@ -64,10 +65,10 @@ data class CashShareOrder(
     }
 
     private fun valid(userId: Long) {
-        check(cash > sharedAmount) { "더 이상 남은 잔액이 없습니다." }
-        check(owner != userId) { "획득 대상자가 아닙니다." }
-        check(sharedDeadLine.isBefore(LocalDateTime.now()).not()) { "획득 시간이 초과하였습니다." }
-        check(cashSharedUsers.none { it.userId == userId }) { "이미 처리된 유저입니다." }
+        check(cash > sharedAmount) { ErrorCode.SHARED_COMPLETED.description }
+        check(owner != userId) { ErrorCode.SHARED_TARGET.description }
+        check(sharedDeadLine.isBefore(LocalDateTime.now()).not()) { ErrorCode.SHARED_TIME_OUT.description }
+        check(cashSharedUsers.none { it.userId == userId }) { ErrorCode.SHARED_USER.description }
     }
 
     fun shared() {
