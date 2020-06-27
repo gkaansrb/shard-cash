@@ -239,5 +239,4 @@ internal class CashShareServiceTest {
         assertThrows<DataNotFoundException> { cashShareService.find(shareUserId, roomId, token) }
             .apply { assert(message == ErrorCode.DATA_NOT_FOUND.description) }
     }
-
 }
