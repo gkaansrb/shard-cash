@@ -24,7 +24,7 @@ data class CashSharedUser(
     @Column(name = "cash_shared_id")
     val cashSharedId: Long,
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn("cash_share_order_id")
+    @JoinColumn(name = "cash_share_order_id")
     val cashShareOrder: CashShareOrder
 ) : AuditingEntity() {
     @Id

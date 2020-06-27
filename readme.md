@@ -13,6 +13,9 @@
 
 
 ### build
+* ./gradlew init
+* ./gradlew build
+* ./gradlew bootrun 
 
 
 ### Logic

@@ -10,6 +10,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.junit.MockitoJUnitRunner
+import java.time.LocalDateTime
 import kotlin.random.Random
 
 @RunWith(MockitoJUnitRunner::class)
@@ -111,6 +112,27 @@ internal class CashShareServiceTest {
 
         cashShareService.receipt(shareUserId, roomId, token).apply { assert(this == 50L) }
         cashShareService.receipt(shareUserId2, roomId, token).apply { assert(this == 50L) }
+    }
+
+    @Test
+    fun `뿌리기 시간이 지난 토큰은 돈을 받을 수 없다`() {
+        val token = "toc"
+        val roomId = "roomID"
+        val owner = 111L
+        val shareUserId = 1234L
+        val cashShareOrder = CashShareOrder.of(token, roomId, owner, 100, sharedPerson = 2)
+        invokeData(cashShareOrder, "sharedDeadLine", LocalDateTime.now().minusMinutes(20))
+        cashShareOrder.cashShareds.forEach {
+            invokeData(it, "id", Random.nextLong())
+        }
+
+        Mockito.`when`(queryRepository.findByReceiptTarget(roomId, token))
+            .thenReturn(cashShareOrder)
+
+        assertThrows<Exception> { cashShareService.receipt(shareUserId, roomId, token) }
+            .apply {
+                assert(message == "획득 시간이 초과하였습니다.")
+            }
     }
 
     @Test

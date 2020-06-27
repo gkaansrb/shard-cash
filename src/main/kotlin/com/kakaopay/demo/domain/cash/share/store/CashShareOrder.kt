@@ -66,6 +66,7 @@ data class CashShareOrder(
     private fun valid(userId: Long) {
         check(cash > sharedAmount) { "더 이상 남은 잔액이 없습니다." }
         check(owner != userId) { "획득 대상자가 아닙니다." }
+        check(sharedDeadLine.isBefore(LocalDateTime.now())) { "획득 시간이 초과하였습니다." }
         check(cashSharedUsers.none { it.userId == userId }) { "이미 처리된 유저입니다." }
     }
 
