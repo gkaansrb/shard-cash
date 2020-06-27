@@ -3,12 +3,9 @@ package com.kakaopay.demo.domain.cash.share
 import com.kakaopay.demo.domain.cash.share.store.CashShareOrderQueryDslRepository
 import com.nhaarman.mockito_kotlin.any
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
-import java.util.regex.Pattern
 
 @RunWith(MockitoJUnitRunner::class)
 internal class CashShareTokenGenerateComponentTest {
