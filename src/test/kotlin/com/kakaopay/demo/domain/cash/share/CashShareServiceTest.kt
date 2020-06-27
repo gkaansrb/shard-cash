@@ -19,6 +19,8 @@ import kotlin.random.Random
 @RunWith(MockitoJUnitRunner::class)
 internal class CashShareServiceTest {
 
+    private val testToken = "tok"
+
     private val queryRepository = mock(CashShareOrderQueryDslRepository::class.java)
     private val repository = mock(CashShareOrderRepository::class.java)
 
@@ -39,6 +41,7 @@ internal class CashShareServiceTest {
             cashShareOrder
         }
         cashShareService.create(
+            token = testToken,
             userId = owner,
             roomId = roomId,
             shareAmount = shareAmount,
@@ -46,6 +49,7 @@ internal class CashShareServiceTest {
         ).apply { assert(length == 3) }
 
         cashShareOrder?.apply {
+            assert(testToken == token)
             assert(cashShareds.size == 5)
             assert(cashSharedUsers.size == 0)
             assert(cash == shareAmount)
@@ -69,7 +73,7 @@ internal class CashShareServiceTest {
             cashShareOrder
         }
 
-        cashShareService.create(userId = 1111, roomId = roomId, shareAmount = 100, sharePerson = 1)
+        cashShareService.create(token = testToken, userId = 1111, roomId = roomId, shareAmount = 100, sharePerson = 1)
         cashShareOrder?.apply {
             Mockito.`when`(queryRepository.findByReceiptTarget(roomId, token)).thenReturn(this)
             val receipt = cashShareService.receipt(shareUserId, roomId, token)

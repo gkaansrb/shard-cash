@@ -17,7 +17,8 @@ import javax.persistence.Version
 import kotlin.math.floor
 
 @Entity
-@Table(name = "cash_share_order",
+@Table(
+    name = "cash_share_order",
     indexes = [Index(name = "cash_share_order_idx01", columnList = "roomId, token")]
 )
 data class CashShareOrder(
@@ -55,26 +56,34 @@ data class CashShareOrder(
     val cashShareds: MutableList<CashShared> = mutableListOf()
 
     fun receipt(userId: Long): Long {
-        valid(userId)
+        receiptValid(userId)
         return cashShareds.first { it.status == CashShared.Status.READY }
             .apply { this.shared() }
-            .let { CashSharedUser(userId = userId, cash = it.sharedAmount, cashSharedId = it.id!!, cashShareOrder = this) }
+            .let {
+                CashSharedUser(
+                    userId = userId,
+                    cash = it.sharedAmount,
+                    cashSharedId = it.id!!,
+                    cashShareOrder = this
+                )
+            }
             .apply { cashSharedUsers.add(this) }
             .apply { sharedAmount += this.cash }
             .cash
     }
 
-    private fun valid(userId: Long) {
+    private fun receiptValid(userId: Long) {
         check(cash > sharedAmount) { ErrorCode.SHARED_COMPLETED.description }
         check(owner != userId) { ErrorCode.SHARED_TARGET.description }
-        check(sharedDeadLine.isBefore(LocalDateTime.now()).not()) { ErrorCode.SHARED_TIME_OUT.description }
+        check(
+            sharedDeadLine.isBefore(LocalDateTime.now()).not()
+        ) { ErrorCode.SHARED_TIME_OUT.description }
         check(cashSharedUsers.none { it.userId == userId }) { ErrorCode.SHARED_USER.description }
     }
 
     fun shared() {
         val baseShare = floor(cash / sharedPerson.toDouble()).toLong()
-        (1.. sharedPerson).fold(cash - (baseShare * sharedPerson)) {
-            remainAmount, it ->
+        (1..sharedPerson).fold(cash - (baseShare * sharedPerson)) { remainAmount, it ->
             if (remainAmount > 0) {
                 cashShareds.add(CashShared(baseShare + 1, this))
                 remainAmount - 1
@@ -83,10 +92,27 @@ data class CashShareOrder(
                 0
             }
         }
-     }
+    }
+
+    private fun valid() {
+        check(cash > 0) { ErrorCode.SHARE_AMOUNT_EMPTY.description }
+        check(sharedPerson > 0) { ErrorCode.SHARE_PERSON_EMPTY.description }
+    }
+
+    private fun sharedValid() {
+        check(cash == cashShareds.map { it.sharedAmount }.sum()) {
+            "${ErrorCode.SHARE_FAILED.description} - $cashShareds"
+        }
+    }
 
     companion object {
-        fun of(token: String, roomId: String, owner: Long, cash: Long, sharedPerson: Long): CashShareOrder {
+        fun of(
+            token: String,
+            roomId: String,
+            owner: Long,
+            cash: Long,
+            sharedPerson: Long
+        ): CashShareOrder {
             val now = LocalDateTime.now()
             return CashShareOrder(
                 token = token,
@@ -96,7 +122,10 @@ data class CashShareOrder(
                 sharedPerson = sharedPerson,
                 sharedDeadLine = now.plusMinutes(10),
                 lookUpDeadLine = now.plusDays(7)
-            ).apply { shared() }
+            )
+                .apply { valid() }
+                .apply { shared() }
+                .apply { sharedValid() }
         }
     }
 }

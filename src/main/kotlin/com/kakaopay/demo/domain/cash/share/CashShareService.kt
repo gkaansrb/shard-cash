@@ -16,27 +16,9 @@ class CashShareService(
     private val cashShareOrderRepository: CashShareOrderRepository,
     private val cashShareOrderQueryDslRepository: CashShareOrderQueryDslRepository
 ) {
-
-    companion object {
-        const val TOKEN_SIZE = 3
-        val CHAR_SET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toByteArray()
-    }
-
-    private fun generateToken() = (1..TOKEN_SIZE)
-        .map { CHAR_SET[Random.nextInt(0, CHAR_SET.size)].toChar() }
-        .joinToString("")
-
-    private fun getToken(roomId: String): String {
-        var token = ""
-        do {
-            token = generateToken()
-        } while (cashShareOrderQueryDslRepository.existsByValidToken(roomId = roomId, token = token))
-        return token
-    }
-
     @Transactional(readOnly = false)
-    fun create(userId: Long, roomId: String, sharePerson: Long, shareAmount: Long): String = CashShareOrder.of(
-        token = getToken(roomId),
+    fun create(token: String, userId: Long, roomId: String, sharePerson: Long, shareAmount: Long): String = CashShareOrder.of(
+        token = token,
         roomId = roomId,
         sharedPerson = sharePerson,
         cash = shareAmount,
