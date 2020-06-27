@@ -7,14 +7,14 @@ import com.kakaopay.demo.domain.common.DataNotFoundException
 import com.kakaopay.demo.domain.common.ErrorCode
 import com.kakaopay.demo.util.invokeData
 import com.kakaopay.demo.util.withLocalDateTime
+import java.time.LocalDateTime
+import kotlin.random.Random
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.junit.MockitoJUnitRunner
-import java.time.LocalDateTime
-import kotlin.random.Random
 
 @RunWith(MockitoJUnitRunner::class)
 internal class CashShareServiceTest {
@@ -80,7 +80,6 @@ internal class CashShareServiceTest {
             assert(receipt == 100L)
         }
     }
-
 
     @Test
     fun `이미 받은 유저는 또 받을 수 없다`() {

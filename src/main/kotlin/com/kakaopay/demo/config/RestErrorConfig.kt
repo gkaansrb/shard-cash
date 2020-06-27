@@ -1,6 +1,9 @@
 package com.kakaopay.demo.config
 
 import com.kakaopay.demo.domain.common.DataNotFoundException
+import java.io.PrintWriter
+import java.io.StringWriter
+import javax.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes
 import org.springframework.http.HttpStatus
@@ -9,11 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.context.request.ServletRequestAttributes
 import org.springframework.web.context.request.WebRequest
-import java.io.PrintWriter
-import java.io.StringWriter
-import javax.servlet.http.HttpServletRequest
 
 @ControllerAdvice(annotations = [RestController::class])
 class RestErrorConfig {

@@ -2,6 +2,7 @@ package com.kakaopay.demo.api.share
 
 import com.kakaopay.demo.domain.cash.share.CashShareService
 import com.kakaopay.demo.domain.cash.share.CashShareTokenGenerateComponent
+import javax.validation.Valid
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import javax.validation.Valid
 
 @RestController
 @RequestMapping("/cash/share")
@@ -38,7 +38,6 @@ class CashShareController(
         @RequestHeader("X-ROOM-ID") roomId: String,
         @PathVariable("token") token: String
     ) = cashShareService.receipt(userId = userId, roomId = roomId, token = token)
-
 
     @GetMapping("/{token}")
     fun find(

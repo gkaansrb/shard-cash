@@ -1,8 +1,8 @@
 package com.kakaopay.demo.domain.cash.share
 
 import com.kakaopay.demo.domain.cash.share.store.CashShareOrderQueryDslRepository
-import org.springframework.stereotype.Component
 import kotlin.random.Random
+import org.springframework.stereotype.Component
 
 @Component
 class CashShareTokenGenerateComponent(private var cashShareOrderQueryDslRepository: CashShareOrderQueryDslRepository) {
