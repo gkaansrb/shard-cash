@@ -49,6 +49,7 @@ dependencies {
         exclude("org.junit.vintage:junit-vintage-engine")
         exclude("org.junit.jupiter:junit-jupiter")
     }
+    testImplementation("com.nhaarman:mockito-kotlin-kt1.1:1.6.0")
     testImplementation("io.mockk:mockk:1.9.3")
     testImplementation("org.junit.jupiter:junit-jupiter:5.6.0")
     testImplementation("org.junit.jupiter:junit-jupiter-migrationsupport:5.6.0")
