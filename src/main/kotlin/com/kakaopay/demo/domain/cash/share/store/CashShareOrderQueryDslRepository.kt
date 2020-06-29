@@ -11,7 +11,7 @@ class CashShareOrderQueryDslRepository : QuerydslRepositorySupport(QCashShareOrd
         val qCashShareOrder: QCashShareOrder = QCashShareOrder.cashShareOrder
     }
 
-    fun exists(roomId: String, token: String): Boolean =
+    suspend fun exists(roomId: String, token: String): Boolean =
         from(qCashShareOrder)
             .where(
                 qCashShareOrder.token.eq(token)
@@ -21,7 +21,7 @@ class CashShareOrderQueryDslRepository : QuerydslRepositorySupport(QCashShareOrd
             .orderBy(qCashShareOrder.sharedDeadLine.desc())
             .fetchFirst() != null
 
-    fun findSharableOrder(roomId: String, token: String): CashShareOrder? =
+    suspend fun findSharableOrder(roomId: String, token: String): CashShareOrder? =
         from(qCashShareOrder)
             .where(
                 qCashShareOrder.token.eq(token)
@@ -30,7 +30,7 @@ class CashShareOrderQueryDslRepository : QuerydslRepositorySupport(QCashShareOrd
             .orderBy(qCashShareOrder.sharedDeadLine.desc())
             .fetchFirst()
 
-    fun findOne(owner: Long, roomId: String, token: String): CashShareOrder? =
+    suspend fun findOne(owner: Long, roomId: String, token: String): CashShareOrder? =
         from(qCashShareOrder)
             .where(
                 qCashShareOrder.token.eq(token)

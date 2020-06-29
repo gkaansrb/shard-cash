@@ -11,11 +11,11 @@ class CashShareTokenGenerateComponent(private var cashShareOrderQueryDslReposito
         val CHAR_SET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray()
     }
 
-    private fun generateToken() = (1..TOKEN_SIZE)
+    private suspend fun generateToken() = (1..TOKEN_SIZE)
         .map { CHAR_SET[Random.nextInt(0, CHAR_SET.size)] }
         .joinToString("")
 
-    fun create(roomId: String): String {
+    suspend fun create(roomId: String): String {
         var token: String
         do {
             token = generateToken()

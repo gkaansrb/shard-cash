@@ -15,7 +15,7 @@ class CashShareService(
     private val cashShareOrderQueryDslRepository: CashShareOrderQueryDslRepository
 ) {
     @Transactional(readOnly = false)
-    fun create(token: String, userId: Long, roomId: String, sharePerson: Long, shareAmount: Long): String = CashShareOrder.of(
+    suspend fun create(token: String, userId: Long, roomId: String, sharePerson: Long, shareAmount: Long): String = CashShareOrder.of(
         token = token,
         roomId = roomId,
         sharedPerson = sharePerson,
@@ -24,11 +24,11 @@ class CashShareService(
     ).let { cashShareOrderRepository.save(it) }.token
 
     @Transactional(readOnly = false)
-    fun share(userId: Long, roomId: String, token: String) =
+    suspend fun share(userId: Long, roomId: String, token: String) =
         cashShareOrderQueryDslRepository.findSharableOrder(roomId, token)?.receiptShare(userId)
             ?: throw DataNotFoundException(ErrorCode.DATA_NOT_FOUND.description)
 
-    fun find(owner: Long, roomId: String, token: String) =
+    suspend fun find(owner: Long, roomId: String, token: String) =
         cashShareOrderQueryDslRepository.findOne(owner, roomId, token)?.let { CashShareOrderDto.of(it) }
             ?: throw DataNotFoundException(ErrorCode.DATA_NOT_FOUND.description)
 }

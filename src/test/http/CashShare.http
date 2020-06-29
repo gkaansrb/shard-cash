@@ -22,3 +22,11 @@ X-USER-ID: 143
 X-ROOM-ID: ROOM_1234
 
 ####
+
+#### hello
+GET http://localhost:8080/hello
+Content-Type: application/json
+X-USER-ID: 143
+X-ROOM-ID: ROOM_1234
+
+####
