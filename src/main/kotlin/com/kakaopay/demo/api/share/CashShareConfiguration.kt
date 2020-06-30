@@ -15,11 +15,6 @@ class CashShareConfiguration {
         GET("/cash/share/{token}", handler::find)
     }
 
-    @Bean
-    fun helloRouter(handler: CashShareHandler) = coRouter {
-        GET("/hello", handler::hello)
-    }
-
     fun cashShareCoRouter(block: (CoRouterFunctionDsl.() -> Unit)) = coRouter {
         ("/cash/share" and accept(MediaType.APPLICATION_JSON)).nest(block)
     }
