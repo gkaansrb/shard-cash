@@ -7,14 +7,15 @@ import com.kakaopay.demo.domain.common.DataNotFoundException
 import com.kakaopay.demo.domain.common.ErrorCode
 import com.kakaopay.demo.util.invokeData
 import com.kakaopay.demo.util.withLocalDateTime
-import java.time.LocalDateTime
-import kotlin.random.Random
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.junit.MockitoJUnitRunner
+import java.time.LocalDateTime
+import kotlin.random.Random
 
 @RunWith(MockitoJUnitRunner::class)
 internal class CashShareServiceTest {
@@ -40,22 +41,25 @@ internal class CashShareServiceTest {
             cashShareOrder = it.arguments[0] as CashShareOrder
             cashShareOrder
         }
-        cashShareService.create(
-            token = testToken,
-            userId = owner,
-            roomId = roomId,
-            shareAmount = shareAmount,
-            sharePerson = sharePerson
-        ).apply { assert(length == 3) }
 
-        cashShareOrder?.apply {
-            assert(testToken == token)
-            assert(cashShareds.size == 5)
-            assert(cashSharedUsers.size == 0)
-            assert(shareRequestAmount == shareAmount)
-            assert(sharedPerson == sharePerson)
-            cashShareds.forEach {
-                assert(it.sharedAmount == 200L)
+        runBlocking {
+            cashShareService.create(
+                token = testToken,
+                userId = owner,
+                roomId = roomId,
+                shareAmount = shareAmount,
+                sharePerson = sharePerson
+            ).apply { assert(length == 3) }
+
+            cashShareOrder?.apply {
+                assert(testToken == token)
+                assert(cashShareds.size == 5)
+                assert(cashSharedUsers.size == 0)
+                assert(shareRequestAmount == shareAmount)
+                assert(sharedPerson == sharePerson)
+                cashShareds.forEach {
+                    assert(it.sharedAmount == 200L)
+                }
             }
         }
     }
@@ -71,13 +75,17 @@ internal class CashShareServiceTest {
             cashShareOrder = it.arguments[0] as CashShareOrder
             cashShareOrder
         }
-        assertThrows<IllegalStateException> { cashShareService.create(
-            token = testToken,
-            userId = owner,
-            roomId = roomId,
-            shareAmount = shareAmount,
-            sharePerson = sharePerson
-        ) }.apply { assert(message == ErrorCode.SHARE_AMOUNT_EMPTY.description) }
+        assertThrows<IllegalStateException> {
+            runBlocking {
+                cashShareService.create(
+                    token = testToken,
+                    userId = owner,
+                    roomId = roomId,
+                    shareAmount = shareAmount,
+                    sharePerson = sharePerson
+                )
+            }
+        }.apply { assert(message == ErrorCode.SHARE_AMOUNT_EMPTY.description) }
     }
 
     @Test
@@ -91,13 +99,18 @@ internal class CashShareServiceTest {
             cashShareOrder = it.arguments[0] as CashShareOrder
             cashShareOrder
         }
-        assertThrows<IllegalStateException> { cashShareService.create(
-            token = testToken,
-            userId = owner,
-            roomId = roomId,
-            shareAmount = shareAmount,
-            sharePerson = sharePerson
-        ) }.apply { assert(message == ErrorCode.SHARE_PERSON_EMPTY.description) }
+
+        assertThrows<IllegalStateException> {
+            runBlocking {
+                cashShareService.create(
+                    token = testToken,
+                    userId = owner,
+                    roomId = roomId,
+                    shareAmount = shareAmount,
+                    sharePerson = sharePerson
+                )
+            }
+        }.apply { assert(message == ErrorCode.SHARE_PERSON_EMPTY.description) }
     }
 
     @Test
@@ -113,11 +126,19 @@ internal class CashShareServiceTest {
             cashShareOrder
         }
 
-        cashShareService.create(token = testToken, userId = 1111, roomId = roomId, shareAmount = 100, sharePerson = 1)
-        cashShareOrder?.apply {
-            Mockito.`when`(queryRepository.findSharableOrder(roomId, token)).thenReturn(this)
-            val receipt = cashShareService.share(shareUserId, roomId, token)
-            assert(receipt == 100L)
+        runBlocking {
+            cashShareService.create(
+                token = testToken,
+                userId = 1111,
+                roomId = roomId,
+                shareAmount = 100,
+                sharePerson = 1
+            )
+            cashShareOrder?.apply {
+                Mockito.`when`(queryRepository.findSharableOrder(roomId, token)).thenReturn(this)
+                val receipt = cashShareService.share(shareUserId, roomId, token)
+                assert(receipt == 100L)
+            }
         }
     }
 
@@ -132,13 +153,22 @@ internal class CashShareServiceTest {
             invokeData(it, "id", Random.nextLong())
         }
 
-        Mockito.`when`(queryRepository.findSharableOrder(roomId, token))
-            .thenReturn(cashShareOrder)
+        runBlocking {
+            Mockito.`when`(queryRepository.findSharableOrder(roomId, token))
+                .thenReturn(cashShareOrder)
 
-        cashShareService.share(shareUserId, roomId, token).apply { assert(this == 50L) }
+            cashShareService.share(shareUserId, roomId, token).apply { assert(this == 50L) }
+        }
 
-        assertThrows<IllegalStateException> { cashShareService.share(shareUserId, roomId, token) }
-            .apply { assert(message == ErrorCode.SHARED_USER.description) }
+        assertThrows<IllegalStateException> {
+            runBlocking {
+                cashShareService.share(
+                    shareUserId,
+                    roomId,
+                    token
+                )
+            }
+        }.apply { assert(message == ErrorCode.SHARED_USER.description) }
     }
 
     @Test
@@ -153,11 +183,13 @@ internal class CashShareServiceTest {
             invokeData(it, "id", Random.nextLong())
         }
 
-        Mockito.`when`(queryRepository.findSharableOrder(roomId, token))
-            .thenReturn(cashShareOrder)
+        runBlocking {
+            Mockito.`when`(queryRepository.findSharableOrder(roomId, token))
+                .thenReturn(cashShareOrder)
 
-        cashShareService.share(shareUserId, roomId, token).apply { assert(this == 50L) }
-        cashShareService.share(shareUserId2, roomId, token).apply { assert(this == 50L) }
+            cashShareService.share(shareUserId, roomId, token).apply { assert(this == 50L) }
+            cashShareService.share(shareUserId2, roomId, token).apply { assert(this == 50L) }
+        }
     }
 
     @Test
@@ -167,19 +199,26 @@ internal class CashShareServiceTest {
         val owner = 111L
         val shareUserId = 1234L
 
-        withLocalDateTime(LocalDateTime.now().minusHours(1)) {
-            val cashShareOrder = CashShareOrder.of(token, roomId, owner, 100, sharedPerson = 2)
-            cashShareOrder.cashShareds.forEach {
-                invokeData(it, "id", Random.nextLong())
+        runBlocking {
+            withLocalDateTime(LocalDateTime.now().minusHours(1)) {
+                val cashShareOrder = CashShareOrder.of(token, roomId, owner, 100, sharedPerson = 2)
+                cashShareOrder.cashShareds.forEach {
+                    invokeData(it, "id", Random.nextLong())
+                }
+                Mockito.`when`(queryRepository.findSharableOrder(roomId, token))
+                    .thenReturn(cashShareOrder)
             }
-            Mockito.`when`(queryRepository.findSharableOrder(roomId, token))
-                .thenReturn(cashShareOrder)
         }
 
-        assertThrows<IllegalStateException> { cashShareService.share(shareUserId, roomId, token) }
-            .apply {
-                assert(message == ErrorCode.SHARED_TIME_OUT.description)
+        assertThrows<IllegalStateException> {
+            runBlocking {
+                cashShareService.share(
+                    userId = shareUserId,
+                    roomId = roomId,
+                    token = token
+                )
             }
+        }.apply { assert(message == ErrorCode.SHARED_TIME_OUT.description) }
     }
 
     @Test
@@ -192,11 +231,16 @@ internal class CashShareServiceTest {
             invokeData(it, "id", Random.nextLong())
         }
 
-        Mockito.`when`(queryRepository.findSharableOrder(roomId, token))
-            .thenReturn(cashShareOrder)
+        runBlocking {
+            Mockito.`when`(queryRepository.findSharableOrder(roomId, token))
+                .thenReturn(cashShareOrder)
+        }
 
-        assertThrows<IllegalStateException> { cashShareService.share(owner, roomId, token) }
-            .apply { assert(message == ErrorCode.SHARED_TARGET.description) }
+        assertThrows<IllegalStateException> {
+            runBlocking {
+                cashShareService.share(owner, roomId, token)
+            }
+        }.apply { assert(message == ErrorCode.SHARED_TARGET.description) }
     }
 
     @Test
@@ -207,21 +251,25 @@ internal class CashShareServiceTest {
         val shareUserId = 1234L
         val cashShareOrder = CashShareOrder.of(token, roomId, owner, 100, sharedPerson = 2)
         cashShareOrder.cashShareds.forEach { invokeData(it, "id", Random.nextLong()) }
-        Mockito.`when`(queryRepository.findSharableOrder(roomId, token)).thenReturn(cashShareOrder)
-        Mockito.`when`(queryRepository.findOne(owner, roomId, token)).thenReturn(cashShareOrder)
-        cashShareService.share(shareUserId, roomId, token).apply { assert(this == 50L) }
+        runBlocking {
 
-        cashShareService.find(owner, roomId, token)
-            .apply {
-                assert(shareRequestAmount == 100L)
-                assert(sharedAt == cashShareOrder.createdAt)
-                assert(sharedAmount == 50L)
-                assert(sharedUsers.size == 1)
-                sharedUsers.first().apply {
-                    assert(userId == shareUserId)
+            Mockito.`when`(queryRepository.findSharableOrder(roomId, token))
+                .thenReturn(cashShareOrder)
+            Mockito.`when`(queryRepository.findOne(owner, roomId, token)).thenReturn(cashShareOrder)
+            cashShareService.share(shareUserId, roomId, token).apply { assert(this == 50L) }
+
+            cashShareService.find(owner, roomId, token)
+                .apply {
+                    assert(shareRequestAmount == 100L)
+                    assert(sharedAt == cashShareOrder.createdAt)
                     assert(sharedAmount == 50L)
+                    assert(sharedUsers.size == 1)
+                    sharedUsers.first().apply {
+                        assert(userId == shareUserId)
+                        assert(sharedAmount == 50L)
+                    }
                 }
-            }
+        }
     }
 
     @Test
@@ -232,11 +280,22 @@ internal class CashShareServiceTest {
         val shareUserId = 1234L
         val cashShareOrder = CashShareOrder.of(token, roomId, owner, 100, sharedPerson = 2)
         cashShareOrder.cashShareds.forEach { invokeData(it, "id", Random.nextLong()) }
-        Mockito.`when`(queryRepository.findSharableOrder(roomId, token)).thenReturn(cashShareOrder)
-        Mockito.`when`(queryRepository.findOne(owner, roomId, token)).thenReturn(cashShareOrder)
-        cashShareService.share(shareUserId, roomId, token).apply { assert(this == 50L) }
+        runBlocking {
+            Mockito.`when`(queryRepository.findSharableOrder(roomId, token))
+                .thenReturn(cashShareOrder)
+            Mockito.`when`(queryRepository.findOne(owner, roomId, token)).thenReturn(cashShareOrder)
+            cashShareService.share(shareUserId, roomId, token).apply { assert(this == 50L) }
+        }
 
-        assertThrows<DataNotFoundException> { cashShareService.find(shareUserId, roomId, token) }
-            .apply { assert(message == ErrorCode.DATA_NOT_FOUND.description) }
+
+        assertThrows<DataNotFoundException> {
+            runBlocking {
+                cashShareService.find(
+                    shareUserId,
+                    roomId,
+                    token
+                )
+            }
+        }.apply { assert(message == ErrorCode.DATA_NOT_FOUND.description) }
     }
 }

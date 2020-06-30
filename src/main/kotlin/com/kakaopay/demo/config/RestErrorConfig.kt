@@ -1,21 +1,33 @@
 package com.kakaopay.demo.config
 
 import com.kakaopay.demo.domain.common.DataNotFoundException
-import java.io.PrintWriter
-import java.io.StringWriter
-import javax.servlet.http.HttpServletRequest
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.boot.web.servlet.error.DefaultErrorAttributes
+import org.springframework.boot.autoconfigure.web.ErrorProperties
+import org.springframework.boot.autoconfigure.web.ResourceProperties
+import org.springframework.boot.autoconfigure.web.reactive.error.DefaultErrorWebExceptionHandler
+import org.springframework.boot.web.reactive.error.ErrorAttributes
+import org.springframework.context.ApplicationContext
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.context.request.WebRequest
+import org.springframework.web.reactive.function.server.ServerRequest
+import java.io.PrintWriter
+import java.io.StringWriter
 
-@ControllerAdvice(annotations = [RestController::class])
-class RestErrorConfig {
+class RestErrorConfig(
+    errorAttribute: ErrorAttributes,
+    resourceProperties: ResourceProperties,
+    errorProperties: ErrorProperties,
+    applicationContext: ApplicationContext,
+    private val logger: Logger
+) : DefaultErrorWebExceptionHandler(
+    errorAttribute,
+    resourceProperties,
+    errorProperties,
+    applicationContext
+) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     @ExceptionHandler(value = [RuntimeException::class])
@@ -23,12 +35,11 @@ class RestErrorConfig {
     @ResponseBody
     fun handleGlobalException(
         e: RuntimeException,
-        request: HttpServletRequest,
-        webRequest: WebRequest
+        webRequest: ServerRequest
     ): Map<String, Any> = errorForm(
         webRequest = webRequest,
         statusCode = HttpStatus.INTERNAL_SERVER_ERROR,
-        logParams = getLogParams(request, e),
+        logParams = getLogParams(webRequest, e),
         message = e.message ?: ""
     )
 
@@ -37,12 +48,11 @@ class RestErrorConfig {
     @ResponseBody
     fun handleDataNotFoundException(
         e: DataNotFoundException,
-        request: HttpServletRequest,
-        webRequest: WebRequest
+        webRequest: ServerRequest
     ): Map<String, Any> = errorForm(
         webRequest = webRequest,
         statusCode = HttpStatus.NOT_FOUND,
-        logParams = getLogParams(request, e),
+        logParams = getLogParams(webRequest, e),
         message = e.message ?: ""
     )
 
@@ -51,32 +61,32 @@ class RestErrorConfig {
     @ResponseBody
     fun handleIllegalStateException(
         e: IllegalStateException,
-        request: HttpServletRequest,
-        webRequest: WebRequest
+        webRequest: ServerRequest
     ): Map<String, Any> = errorForm(
         webRequest = webRequest,
         statusCode = HttpStatus.BAD_REQUEST,
-        logParams = getLogParams(request, e),
+        logParams = getLogParams(webRequest, e),
         message = e.message ?: ""
     )
 
     private fun getLogParams(
-        request: HttpServletRequest,
+        request: ServerRequest,
         e: RuntimeException
     ) = mapOf(
-        "url" to request.requestURI,
+        "url" to request.uri().toString(),
+        "method" to request.method().toString(),
         "exception message:" to "${e.message}\n",
         "stackTrace" to traceToString(e)
     ).toString()
 
     private fun errorForm(
-        webRequest: WebRequest,
+        webRequest: ServerRequest,
         statusCode: HttpStatus,
         logParams: String,
         message: String
     ): MutableMap<String, Any> {
         log.error(logParams)
-        val errorAttributes = DefaultErrorAttributes().getErrorAttributes(webRequest, true)
+        val errorAttributes = getErrorAttributes(webRequest, true)
         errorAttributes["status"] = statusCode.value()
         errorAttributes["logParams"] = logParams
         errorAttributes["message"] = message

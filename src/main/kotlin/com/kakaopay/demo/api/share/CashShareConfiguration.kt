@@ -8,11 +8,10 @@ import org.springframework.web.reactive.function.server.coRouter
 
 @Configuration
 class CashShareConfiguration {
-
     @Bean
     fun cashShareRouter(handler: CashShareHandler) = cashShareCoRouter {
-        POST("", handler::create)
-        PUT("{token}", handler::receipt)
+        POST("/", handler::create)
+        PUT("/{token}", handler::receipt)
         GET("/cash/share/{token}", handler::find)
     }
 
@@ -22,6 +21,6 @@ class CashShareConfiguration {
     }
 
     fun cashShareCoRouter(block: (CoRouterFunctionDsl.() -> Unit)) = coRouter {
-        ("/cash/share/" and accept(MediaType.APPLICATION_JSON)).nest(block)
+        ("/cash/share" and accept(MediaType.APPLICATION_JSON)).nest(block)
     }
 }
